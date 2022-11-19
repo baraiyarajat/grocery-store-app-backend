@@ -4,15 +4,12 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 
 class AccountManager(BaseUserManager):
 
-    def create_user(self, first_name, last_name, username, email, password=None):
+    def create_user(self, first_name, last_name, email, password=None):
         if not email:
             raise ValueError('Email Address cannot be empty')
-        if not username:
-            raise ValueError('User name cannot be empty')
 
         user = self.model(
             email=self.normalize_email(email),
-            username=username,
             first_name=first_name,
             last_name=last_name
         )
@@ -22,12 +19,11 @@ class AccountManager(BaseUserManager):
 
         return user
 
-    def create_superuser(self, first_name, last_name, username, email, password):
+    def create_superuser(self, first_name, last_name, email, password):
         # Create normal user
         user = self.create_user(
             first_name=first_name,
             last_name=last_name,
-            username=username,
             password=password,
             email=self.normalize_email(email))
 
@@ -44,7 +40,6 @@ class AccountManager(BaseUserManager):
 class Account(AbstractBaseUser):
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
-    username = models.CharField(max_length=100, unique=True)
     email = models.EmailField(max_length=100, unique=True)
     phone_number = models.CharField(max_length=50)
     profile_picture = models.ImageField(upload_to='photos/profile_pictures', blank=True,
@@ -63,7 +58,7 @@ class Account(AbstractBaseUser):
 
     # Allows users to log in with email address
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
+    REQUIRED_FIELDS = [ 'first_name', 'last_name']
 
     objects = AccountManager()
 
