@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Warehouse
+from .models import Warehouse, SelectedWarehouse
 
 
 class WarehouseAdmin(admin.ModelAdmin):
@@ -8,3 +8,10 @@ class WarehouseAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Warehouse, WarehouseAdmin)
+
+
+class SelectedWarehouseAdmin(admin.ModelAdmin):
+    list_display = ('user', 'warehouse')
+
+
+admin.site.register(SelectedWarehouse, SelectedWarehouseAdmin)
