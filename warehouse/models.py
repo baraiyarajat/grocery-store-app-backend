@@ -1,4 +1,5 @@
 from django.db import models
+from accounts.models import Account
 
 
 class Warehouse(models.Model):
@@ -8,3 +9,11 @@ class Warehouse(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class SelectedWarehouse(models.Model):
+    user = models.OneToOneField(Account, on_delete=models.CASCADE)
+    warehouse = models.ForeignKey(Warehouse, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.warehouse.name
