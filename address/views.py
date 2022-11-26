@@ -3,6 +3,7 @@ from rest_framework.views import APIView
 from .models import Address
 from .serializers import AddressSerializer
 from rest_framework.response import Response
+from django.core.exceptions import ObjectDoesNotExist
 
 
 class AddressListView(APIView):
@@ -12,3 +13,14 @@ class AddressListView(APIView):
         addresses = Address.objects.filter(user__id=user_id)
         address_serializer = AddressSerializer(addresses, many=True)
         return Response(address_serializer.data, status=200)
+
+
+class AddressDetailView(APIView):
+
+    def delete(self, request, address_id):
+        try:
+            address_object = Address.objects.get(id=address_id)
+            address_object.delete()
+            return Response(status=200)
+        except ObjectDoesNotExist:
+            return Response(status=204)
