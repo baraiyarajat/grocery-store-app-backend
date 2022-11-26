@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'warehouse',
     'category',
     'address',
+    'product',
 ]
 
 MIDDLEWARE = [
