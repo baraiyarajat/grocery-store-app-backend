@@ -17,3 +17,14 @@ class CartProductsListView(APIView):
         except Exception as e:
             print(e)
             return Response(status=500)
+
+
+class DeleteCartProduct(APIView):
+    def delete(self, request, cart_item_id):
+        try:
+            cart_item_object = CartProduct.objects.get(id=cart_item_id)
+            cart_item_object.delete()
+            return Response(status=200)
+        except Exception as e:
+            print(e)
+            return Response(status=500)
