@@ -29,3 +29,11 @@ class AccountSerializer(serializers.ModelSerializer):
     class Meta:
         model = Account
         fields = ('id', 'first_name', 'last_name', 'email', 'password')
+
+
+class AccountAuthSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = ('id', 'first_name', 'last_name', 'phone_number', 'email')
+
+
