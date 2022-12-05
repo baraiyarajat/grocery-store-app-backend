@@ -57,7 +57,11 @@ class DecreaseCartProductQuantity(APIView):
             cart_product_id = request.data['cart_product_id']
             cart_product_object = CartProduct.objects.get(id=cart_product_id)
             cart_product_object.quantity -= 1
-            cart_product_object.save()
+
+            if cart_product_object.quantity == 0:
+                cart_product_object.delete()
+            else:
+                cart_product_object.save()
             return Response(status=200)
         except Exception as e:
             return Response(status=500)
