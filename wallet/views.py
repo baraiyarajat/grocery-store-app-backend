@@ -22,13 +22,13 @@ class AddCreditToWallet(APIView):
     def patch(self, request):
         try:
             user_id = request.data['user_id']
-            credit_amount = request.data['credit_amount']
+            credit_amount = request.data['card_details']['credit_amount']
 
             # Credit Card Validations
 
             # Wallet Update
             wallet_object = Wallet.objects.get(user__id=user_id)
-            wallet_object.credit += credit_amount
+            wallet_object.credit += int(credit_amount)
             wallet_object.save()
             return Response(status=200)
         except Exception as e:
