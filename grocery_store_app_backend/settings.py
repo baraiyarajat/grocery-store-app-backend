@@ -1,8 +1,10 @@
 """
 Django settings for grocery_store_app_backend project.
 """
+from datetime import timedelta
 import environ
 from pathlib import Path
+from google.oauth2 import service_account
 
 
 # Environment variables
@@ -146,9 +148,20 @@ STATICFILES_DIRS = [
     'grocery_store_app_backend/static',
 ]
 
+
+# GCP Settings
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+
+GS_BUCKET_NAME = env('GS_BUCKET_NAME')
+GS_LOCATION = 'media/'
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+    BASE_DIR / env("GS_CREDENTIALS_FILE_PATH")
+)
+GS_EXPIRATION = timedelta(minutes=int(env('GS_EXPIRATION_MINUTES')))
+
 # For Media Files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
