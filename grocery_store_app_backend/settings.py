@@ -5,14 +5,28 @@ from datetime import timedelta
 import environ
 from pathlib import Path
 from google.oauth2 import service_account
-
-
-# Environment variables
-env = environ.Env()
-environ.Env.read_env()
+from google.cloud import secretmanager
+import os
+import io
+from urllib.parse import urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Environment variables
+env = environ.Env()
+env_file = os.path.join(BASE_DIR, "grocery_store_app_backend", ".env")
+# environ.Env.read_env()
+
+if os.path.isfile(env_file):
+    env.read_env(env_file)
+elif os.environ.get("GOOGLE_CLOUD_PROJECT", None):
+    project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
+    client = secretmanager.SecretManagerServiceClient()
+    settings_name = os.environ.get("SETTINGS_NAME", "grocery-store-app-secrets")
+    name = f"projects/{project_id}/secrets/{settings_name}/versions/latest"
+    payload = client.access_secret_version(name=name).payload.data.decode("UTF-8")
+    env.read_env(io.StringIO(payload))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -23,7 +37,20 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+APPENGINE_URL = env("APPENGINE_URL", default=None)
+
+if APPENGINE_URL:
+    # Ensure a scheme is present in the URL before it's processed.
+    if not urlparse(APPENGINE_URL).scheme:
+        APPENGINE_URL = f"http://{APPENGINE_URL}"
+
+    ALLOWED_HOSTS = [urlparse(APPENGINE_URL).netloc]
+    CSRF_TRUSTED_ORIGINS = [APPENGINE_URL]
+    SECURE_SSL_REDIRECT = True
+else:
+    ALLOWED_HOSTS = ["*"]
+
+
 
 # Application definition
 
@@ -142,13 +169,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.1/howto/static-files/
 
 
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'static'
-STATICFILES_DIRS = [
-    'grocery_store_app_backend/static',
-]
-
-
 # GCP Settings
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 
@@ -158,6 +178,12 @@ GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
     BASE_DIR / env("GS_CREDENTIALS_FILE_PATH")
 )
 GS_EXPIRATION = timedelta(minutes=int(env('GS_EXPIRATION_MINUTES')))
+
+STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_STATIC_BUCKET_NAME = env('GS_STATIC_BUCKET_NAME')
+STATIC_URL = '/static/'
+
+
 
 # For Media Files
 # MEDIA_URL = '/media/'
