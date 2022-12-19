@@ -14,7 +14,8 @@ class WarehouseProductListView(APIView):
         category_object = Category.objects.get(slug=category_slug)
 
         warehouse_product_objects = WarehouseProduct.objects.filter(product__category=category_object,
-                                                                    warehouse__id=warehouse_id).order_by('product__name')
+                                                                    warehouse__id=warehouse_id).order_by(
+            'product__name')
         warehouse_product_serializer = WarehouseProductSerializer(warehouse_product_objects, many=True)
         return Response(warehouse_product_serializer.data, status=200)
 
@@ -32,6 +33,16 @@ class NewWarehouseProducts(APIView):
 
     def get(self, request):
         warehouse_id = request.GET['warehouse_id']
-        new_warehouse_product_objects = WarehouseProduct.objects.filter(warehouse__id=warehouse_id).order_by('-modified_date')[:25]
-        new_warehouse_product_serializer = WarehouseProductSerializer(new_warehouse_product_objects, many=True)
+
+        if 'category_slug' in request.GET.keys():
+            category_slug = request.GET['category_slug']
+            category_object = Category.objects.get(slug=category_slug)
+            new_warehouse_product_objects = WarehouseProduct.objects.filter(
+                warehouse__id=warehouse_id, product__category=category_object).order_by('-modified_date')[:25]
+            new_warehouse_product_serializer = WarehouseProductSerializer(new_warehouse_product_objects, many=True)
+        else:
+
+            new_warehouse_product_objects = WarehouseProduct.objects.filter(
+                warehouse__id=warehouse_id).order_by('-modified_date')[:25]
+            new_warehouse_product_serializer = WarehouseProductSerializer(new_warehouse_product_objects, many=True)
         return Response(new_warehouse_product_serializer.data, status=200)
