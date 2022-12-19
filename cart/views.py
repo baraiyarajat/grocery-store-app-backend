@@ -88,3 +88,23 @@ class AddCartProduct(APIView):
         except Exception as e:
             print(e)
             return Response(status=500)
+
+
+class EmptyCart(APIView):
+
+    def delete(self, request):
+        try:
+            print(request.data)
+            user_id = request.data['user_id']
+            warehouse_id = request.data['warehouse_id']
+
+            user_object = Account.objects.get(id=user_id)
+            warehouse_object = Warehouse.objects.get(id=warehouse_id)
+
+            CartProduct.objects.filter(user=user_object,
+                                       warehouse=warehouse_object).delete()
+
+            return Response(status=200)
+        except Exception as e:
+            print(e)
+            return Response(status=500)
