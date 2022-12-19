@@ -8,6 +8,7 @@ from address.models import Address
 from accounts.models import Account
 from warehouse.models import Warehouse
 from warehouse_product.models import WarehouseProduct
+from cart.models import CartProduct
 
 
 class OrdersListView(APIView):
@@ -122,6 +123,10 @@ class PlaceOrderView(APIView):
             order_object.total_items = total_cart_items
 
             order_object.save()
+
+            CartProduct.objects.filter(user=user_object,
+                                       warehouse=warehouse_object).delete()
+
 
             return Response(status=200)
         except Exception as e:
