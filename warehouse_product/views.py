@@ -46,3 +46,33 @@ class NewWarehouseProducts(APIView):
                 warehouse__id=warehouse_id).order_by('-modified_date')[:25]
             new_warehouse_product_serializer = WarehouseProductSerializer(new_warehouse_product_objects, many=True)
         return Response(new_warehouse_product_serializer.data, status=200)
+
+
+class FeaturedProducts(APIView):
+
+    def get(self, request):
+        warehouse_id = request.GET['warehouse_id']
+        featured_product_objects = WarehouseProduct.objects.filter(warehouse__id=warehouse_id,
+                                                                   is_featured=True)
+
+        featured_product_serializer = WarehouseProductSerializer(featured_product_objects, many=True)
+
+        return Response(featured_product_serializer.data, status=200)
+
+
+class SearchProducts(APIView):
+
+    def get(self, request):
+
+        try:
+            warehouse_id = request.GET['warehouse_id']
+            search_string = request.GET['search_string']
+
+            search_result_objects = WarehouseProduct.objects.filter(warehouse__id=warehouse_id, product__name__icontains= search_string)
+            search_product_serializer = WarehouseProductSerializer(search_result_objects, many=True)
+            return Response(search_product_serializer.data, status=200)
+
+        except Exception as e:
+            print(e)
+            return Response(status=500)
+
