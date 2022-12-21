@@ -16,7 +16,7 @@ class CartProductsListView(APIView):
             user_object = Account.objects.get(id=user_id)
             warehouse_object = Warehouse.objects.get(id=selected_warehouse_id)
             cart_product_objects = CartProduct.objects.filter(user=user_object,
-                                                              warehouse=warehouse_object)
+                                                              warehouse=warehouse_object).order_by('warehouse_product__product__name')
             cart_products_serializer = CartProductSerializer(cart_product_objects, many=True)
             return Response(cart_products_serializer.data, status=200)
         except Exception as e:
