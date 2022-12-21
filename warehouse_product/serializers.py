@@ -8,4 +8,5 @@ class WarehouseProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = WarehouseProduct
-        fields = ('id', 'warehouse', 'product', 'price', 'stock', 'discount_rate', 'created_date', 'modified_date', 'get_discounted_price')
+        fields = ('id', 'warehouse', 'product', 'price', 'stock', 'discount_rate', 'created_date', 'modified_date', 'get_discounted_price',
+                  'is_featured', 'feature_reason')
