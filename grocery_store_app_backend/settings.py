@@ -28,9 +28,6 @@ elif os.environ.get("GOOGLE_CLOUD_PROJECT", None):
     payload = client.access_secret_version(name=name).payload.data.decode("UTF-8")
     env.read_env(io.StringIO(payload))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
 
@@ -42,15 +39,13 @@ APPENGINE_URL = env("APPENGINE_URL", default=None)
 if APPENGINE_URL:
     # Ensure a scheme is present in the URL before it's processed.
     if not urlparse(APPENGINE_URL).scheme:
-        APPENGINE_URL = f"http://{APPENGINE_URL}"
+        APPENGINE_URL = f"https://{APPENGINE_URL}"
 
     ALLOWED_HOSTS = [urlparse(APPENGINE_URL).netloc]
     CSRF_TRUSTED_ORIGINS = [APPENGINE_URL]
     SECURE_SSL_REDIRECT = True
 else:
     ALLOWED_HOSTS = ["*"]
-
-
 
 # Application definition
 
@@ -76,9 +71,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -165,31 +160,21 @@ USE_I18N = True
 
 USE_TZ = True
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/4.1/howto/static-files/
-
-
 # GCP Settings
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+# STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
 
 GS_BUCKET_NAME = env('GS_BUCKET_NAME')
+GS_STATIC_BUCKET_NAME = env('GS_BUCKET_NAME')
 GS_LOCATION = 'media/'
 GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
     BASE_DIR / env("GS_CREDENTIALS_FILE_PATH")
 )
 GS_EXPIRATION = timedelta(minutes=int(env('GS_EXPIRATION_MINUTES')))
 
-STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-GS_STATIC_BUCKET_NAME = env('GS_STATIC_BUCKET_NAME')
-STATIC_URL = '/static/'
-
-
-
-# For Media Files
-# MEDIA_URL = '/media/'
-# MEDIA_ROOT = BASE_DIR / 'media'
+STATIC_URL = 'static/'
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Default primary key field type
-# https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
