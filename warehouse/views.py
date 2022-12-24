@@ -30,6 +30,12 @@ class SelectedWarehouseViewAPI(APIView):
     def post(self, request):
 
         user_id = request.data['user_id']
+        if not user_id:
+            selected_warehouse_object = Warehouse.objects.get(default_selected=True)
+            response = Response()
+            response.data = {'warehouse': WarehouseSerializer(selected_warehouse_object).data}
+            response.status=200
+            return response
         user = Account.objects.get(id=user_id)
         selected_warehouse_id = request.data['selected_warehouse_id']
 
