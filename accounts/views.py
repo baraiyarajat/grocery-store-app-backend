@@ -121,4 +121,18 @@ class LogoutAPIView(APIView):
         return response
 
 
+class SetUserProfilePicture(APIView):
 
+    authentication_classes = [JWTAuthentication,]
+    def post(self, request):
+
+        try:
+            # print(request.data['user_id'])
+            user_id = request.data['user_id']
+            user_object = Account.objects.get(id=user_id)
+            user_object.profile_picture = request.data['file']
+            user_object.save()
+
+            return Response(status=200)
+        except Exception as e:
+            return Response(status=500)
