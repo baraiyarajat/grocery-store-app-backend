@@ -2,13 +2,14 @@ from rest_framework.views import APIView
 from .models import Order, OrderItem
 from rest_framework.response import Response
 from .serializers import OrderSerializer
-
+from decimal import Decimal
 # Models
 from address.models import Address
 from accounts.models import Account
 from warehouse.models import Warehouse
 from warehouse_product.models import WarehouseProduct
 from cart.models import CartProduct
+from wallet.models import Wallet
 
 
 class OrdersListView(APIView):
@@ -101,6 +102,17 @@ class PlaceOrderView(APIView):
                 order_object.payment_method = 'CARD'
                 order_object.payment_completed = True
                 order_object.card_number = card_details['cardNumber']
+            elif payment_method == 'WALLET':
+                order_object.payment_method = 'WALLET'
+                wallet_object = Wallet.objects.get(user__id=user_id)
+                if wallet_object.credit >= final_amount:
+                    wallet_object.credit -= Decimal(final_amount)
+
+                    wallet_object.save()
+                    order_object.payment_completed = True
+                else:
+                    print("Not enough balance in wallet")
+                    order_object.payment_completed = False
             else:
                 order_object.payment_method = 'COD'
 
@@ -126,7 +138,6 @@ class PlaceOrderView(APIView):
 
             CartProduct.objects.filter(user=user_object,
                                        warehouse=warehouse_object).delete()
-
 
             return Response(status=200)
         except Exception as e:
