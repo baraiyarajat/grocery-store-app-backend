@@ -23,7 +23,7 @@ class JWTAuthentication(BaseAuthentication):
 def create_access_token(user_id):
     return jwt.encode({
         "user_id": user_id,
-        "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=180),
+        "exp": datetime.datetime.utcnow() + datetime.timedelta(seconds=30),
         'iat': datetime.datetime.utcnow()
     }, 'access_secret', algorithm='HS256')
 
