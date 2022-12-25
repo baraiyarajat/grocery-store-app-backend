@@ -16,7 +16,8 @@ ORDER_STATUS_VALUES = (
 
 PAYMENT_METHOD_VALUES = (
     ("COD", "COD"),
-    ("CARD", "CARD")
+    ("CARD", "CARD"),
+    ("WALLET", "WALLET"),
 )
 
 DELIVERY_TIME_VALUES = (
