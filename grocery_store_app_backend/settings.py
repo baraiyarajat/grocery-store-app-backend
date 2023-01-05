@@ -14,9 +14,10 @@ from urllib.parse import urlparse
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Environment variables
-env = environ.Env()
+# env = environ.Env()
+env = environ.Env(DEBUG=(bool, False))
 env_file = os.path.join(BASE_DIR, "grocery_store_app_backend", ".env")
-# environ.Env.read_env()
+
 
 if os.path.isfile(env_file):
     env.read_env(env_file)
@@ -32,7 +33,7 @@ elif os.environ.get("GOOGLE_CLOUD_PROJECT", None):
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 APPENGINE_URL = env("APPENGINE_URL", default=None)
 
@@ -42,6 +43,7 @@ if APPENGINE_URL:
         APPENGINE_URL = f"https://{APPENGINE_URL}"
 
     ALLOWED_HOSTS = [urlparse(APPENGINE_URL).netloc]
+
     CSRF_TRUSTED_ORIGINS = [APPENGINE_URL]
     SECURE_SSL_REDIRECT = True
 else:
@@ -114,6 +116,7 @@ AUTH_USER_MODEL = env('AUTH_USER_MODEL')
 # Database
 # https://docs.djangoproject.com/en/4.1/ref/settings/#databases
 
+
 DATABASES = {
     # 'default': {
     #     'ENGINE': 'django.db.backends.sqlite3',
@@ -130,9 +133,9 @@ DATABASES = {
     }
 
 }
+if os.path.isfile(env_file):
+    DATABASES['default']['HOST'] = env('DB_HOST_LOCAL')
 
-# Password validation
-# https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -163,7 +166,7 @@ USE_TZ = True
 # GCP Settings
 DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
-# STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
 
 GS_BUCKET_NAME = env('GS_BUCKET_NAME')
 GS_STATIC_BUCKET_NAME = env('GS_BUCKET_NAME')
