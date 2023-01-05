@@ -28,28 +28,39 @@ def warehouse_details(request, warehouse_id):
 class SelectedWarehouseViewAPI(APIView):
 
     def post(self, request):
+        try:
+            if not 'user_id' in request.data.keys() and 'selected_warehouse_id' in request.data.keys():
+                selected_warehouse_object = Warehouse.objects.get(id=request.data['selected_warehouse_id'])
+                response = Response()
+                response.data = {'warehouse': WarehouseSerializer(selected_warehouse_object).data}
+                response.status = 200
+                print(response.data)
+                return response
 
-        user_id = request.data['user_id']
-        if not user_id:
-            selected_warehouse_object = Warehouse.objects.get(default_selected=True)
-            response = Response()
-            response.data = {'warehouse': WarehouseSerializer(selected_warehouse_object).data}
-            response.status=200
-            return response
-        user = Account.objects.get(id=user_id)
-        selected_warehouse_id = request.data['selected_warehouse_id']
+            user_id = request.data['user_id']
+            if not user_id or user_id=='':
+                selected_warehouse_object = Warehouse.objects.get(default_selected=True)
+                response = Response()
+                response.data = {'warehouse': WarehouseSerializer(selected_warehouse_object).data}
+                response.status=200
+                return response
+            user = Account.objects.get(id=user_id)
+            selected_warehouse_id = request.data['selected_warehouse_id']
 
-        if selected_warehouse_id is None:
-            try:
+            if selected_warehouse_id is None:
+                try:
+                    selected_warehouse_object = SelectedWarehouse.objects.get(user=user)
+                except ObjectDoesNotExist as e:
+                    warehouse_object = Warehouse.objects.get(default_selected=True)
+                    selected_warehouse_object = SelectedWarehouse.objects.create(user=user, warehouse=warehouse_object)
+
+            else:
                 selected_warehouse_object = SelectedWarehouse.objects.get(user=user)
-            except ObjectDoesNotExist as e:
-                warehouse_object = Warehouse.objects.get(default_selected=True)
-                selected_warehouse_object = SelectedWarehouse.objects.create(user=user, warehouse=warehouse_object)
+                warehouse_object = Warehouse.objects.get(id=selected_warehouse_id)
+                selected_warehouse_object.warehouse = warehouse_object
+                selected_warehouse_object.save()
 
-        else:
-            selected_warehouse_object = SelectedWarehouse.objects.get(user=user)
-            warehouse_object = Warehouse.objects.get(id=selected_warehouse_id)
-            selected_warehouse_object.warehouse = warehouse_object
-            selected_warehouse_object.save()
-
-        return Response(SelectedWarehouseSerializer(selected_warehouse_object).data, status=200)
+            return Response(SelectedWarehouseSerializer(selected_warehouse_object).data, status=200)
+        except Exception as e:
+            print(e)
+            return Response(status=500)
