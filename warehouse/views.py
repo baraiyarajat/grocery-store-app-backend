@@ -28,6 +28,7 @@ def warehouse_details(request, warehouse_id):
 class SelectedWarehouseViewAPI(APIView):
 
     def post(self, request):
+        print(request.data)
         try:
             if not 'user_id' in request.data.keys() and 'selected_warehouse_id' in request.data.keys():
                 selected_warehouse_object = Warehouse.objects.get(id=request.data['selected_warehouse_id'])
@@ -55,11 +56,14 @@ class SelectedWarehouseViewAPI(APIView):
                     selected_warehouse_object = SelectedWarehouse.objects.create(user=user, warehouse=warehouse_object)
 
             else:
-                selected_warehouse_object = SelectedWarehouse.objects.get(user=user)
-                warehouse_object = Warehouse.objects.get(id=selected_warehouse_id)
-                selected_warehouse_object.warehouse = warehouse_object
-                selected_warehouse_object.save()
-
+                try:
+                    selected_warehouse_object = SelectedWarehouse.objects.get(user=user)
+                    warehouse_object = Warehouse.objects.get(id=selected_warehouse_id)
+                    selected_warehouse_object.warehouse = warehouse_object
+                    selected_warehouse_object.save()
+                except ObjectDoesNotExist:
+                    warehouse_object = Warehouse.objects.get( id=selected_warehouse_id)
+                    selected_warehouse_object = SelectedWarehouse.objects.create(user=user, warehouse=warehouse_object)
             return Response(SelectedWarehouseSerializer(selected_warehouse_object).data, status=200)
         except Exception as e:
             print(e)
