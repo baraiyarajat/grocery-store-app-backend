@@ -28,7 +28,7 @@ def warehouse_details(request, warehouse_id):
 class SelectedWarehouseViewAPI(APIView):
 
     def post(self, request):
-        print(request.data)
+
         try:
             if not 'user_id' in request.data.keys() and 'selected_warehouse_id' in request.data.keys():
                 selected_warehouse_object = Warehouse.objects.get(id=request.data['selected_warehouse_id'])
