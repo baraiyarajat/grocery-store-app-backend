@@ -138,8 +138,12 @@ class PlaceOrderView(APIView):
 
             CartProduct.objects.filter(user=user_object,
                                        warehouse=warehouse_object).delete()
-
-            return Response(status=200)
+            response = Response()
+            response.data = {'success_message': 'Order placed successfully.'}
+            response.status = 200
+            return response
         except Exception as e:
-            print(e)
-            return Response(status=500)
+            response = Response()
+            response.data = {'error_message': 'Some error occurred while placing your order. Please try again later.'}
+            response.status = 500
+            return response

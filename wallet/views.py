@@ -38,10 +38,19 @@ class AddCreditToWallet(APIView):
             wallet_object = Wallet.objects.get(user__id=user_id)
             wallet_object.credit += int(credit_amount)
             wallet_object.save()
-            return Response(status=200)
+
+            response = Response()
+            response.data = {"success_message" : "Added {} dollars to the wallet successfully.".format(credit_amount)}
+            response.status=200
+            return response
+
         except Exception as e:
-            print(e)
-            return Response(status=500)
+
+            response = Response()
+            response.data = {"error_message": "Some error occurred while processing your request. Please try again "
+                                              "later."}
+            response.status = 500
+            return response
 
 
 class DebitAmountFromWallet(APIView):

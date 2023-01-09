@@ -23,9 +23,31 @@ class AddressDetailView(APIView):
         try:
             address_object = Address.objects.get(id=address_id)
             address_object.delete()
-            return Response(status=200)
+
+            response = Response()
+            response.status = 200
+            response.data = {
+                'success_message': 'Address deleted successfully'
+            }
+
+            return response
         except ObjectDoesNotExist:
-            return Response(status=204)
+
+            response = Response()
+            response.status = 500
+            response.data = {
+                'error_message': 'Either the address is deleted or it does not exist.'
+            }
+            return response
+
+        except Exception as e:
+
+            response = Response()
+            response.status = 500
+            response.data = {
+                'error_message': 'Some error occurred while deleting the address'
+            }
+            return response
 
 
 class AddAddressView(APIView):
@@ -50,17 +72,30 @@ class AddAddressView(APIView):
                                    pincode=pincode,
                                    city=warehouse_object).save()
 
-            return Response(status=200)
+            response = Response()
+            response.status = 200
+            response.data = {
+                'success_message': 'Address added successfully.'
+            }
+
+            return response
         except Exception as e:
             print(e)
-            return Response(status=500)
+
+            response = Response()
+            response.status = 500
+            response.data = {
+                'error_message': 'Some error occurred while adding the address'
+            }
+
+            return response
+
 
 class EditAddressView(APIView):
 
     def patch(self, request):
 
         try:
-            print(request.data)
             address_id = request.data['address_id']
             user_id = request.data['user_id']
             address_type = request.data['address_type']
@@ -81,9 +116,19 @@ class EditAddressView(APIView):
             address_object.address_type = address_type
             address_object.save()
 
-            return Response(status=200)
+            response = Response()
+            response.status = 200
+            response.data = {
+                'success_message': 'Address edited successfully.'
+            }
+
+            return response
         except Exception as e:
             print(e)
-            return Response(status=500)
+            response = Response()
+            response.status = 500
+            response.data = {
+                'error_message': 'Some error occurred while editing the address'
+            }
 
-
+            return response

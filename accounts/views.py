@@ -1,6 +1,4 @@
 import datetime
-import string
-import random
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -11,6 +9,7 @@ from .models import Account, UserToken
 
 from .authentication import create_access_token, create_refresh_token, JWTAuthentication, decode_refresh_token
 
+from django.core.exceptions import ObjectDoesNotExist
 
 class AccountCreate(APIView):
     """
@@ -61,15 +60,42 @@ class LoginAPIView(APIView):
             response.data = {
                 'access_token': access_token,
                 'refresh_token': refresh_token,
+                'success_message': 'Login Successful.',
+                'error_messages': []
             }
 
-            response.status=200
+            response.status = status.HTTP_200_OK
 
+            return response
+
+        except ObjectDoesNotExist:
+            response = Response()
+            response.data = {
+                'success_message': '',
+                'error_messages': ['Sorry. We could not find an account with this Email. Please create an account to '
+                                   'continue.']
+            }
+            response.status = status.HTTP_401_UNAUTHORIZED
+            return response
+
+        except exceptions.AuthenticationFailed:
+            response = Response()
+            response.data = {
+                'success_message': '',
+                'error_messages': ['Invalid credentials. Please enter correct email and password.']
+            }
+            response.status = status.HTTP_401_UNAUTHORIZED
             return response
 
         except Exception as e:
             print(e)
-            return Response({}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            response = Response()
+            response.data = {
+                'success_message': '',
+                'error_messages': ['Some error occurred while authenticating user. Please try again later.']
+            }
+            response.status = status.HTTP_500_INTERNAL_SERVER_ERROR
+            return response
 
 
 class UserAPIView(APIView):
